@@ -1,411 +1,405 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>比較政府與政治｜助教課互動頁：美國政治發展（30 分鐘）</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>美國五十州填色空白地圖（藍/紅猜測）</title>
   <style>
-    @media print { .no-print { display:none !important; } }
-    details>summary::-webkit-details-marker { display:none }
+    :root {
+      --bg: #0b0c0f;
+      --panel: #151822;
+      --text: #e7e9ee;
+      --muted: #9aa3b2;
+      --neutral: #e6e8ed;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, "PingFang TC", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    header, footer { padding: 12px 16px; background: var(--panel); border-bottom: 1px solid #212536; }
+    header { position: sticky; top: 0; z-index: 2; }
+    footer { border-top: 1px solid #212536; border-bottom: none; }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    }
+    .toolbar .sep { width: 1px; height: 28px; background: #2a3042; margin: 0 4px; }
+    .btn {
+      appearance: none; border: 1px solid #2a3042; background: #0f1320; color: var(--text);
+      padding: 8px 10px; border-radius: 10px; font-size: 14px; cursor: pointer;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn:active { transform: translateY(1px); }
+    .btn.blue { border-color: #2b3f66; }
+    .btn.red { border-color: #5a2a36; }
+    .btn.neutral { border-color: #394157; }
+    .btn.primary { border-color: #3b82f6; background: #0f172a; }
+
+    .legend {
+      display: inline-flex; gap: 10px; align-items: center; padding-left: 6px; color: var(--muted);
+    }
+    .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #0006; display: inline-block; vertical-align: middle; }
+    .swatch.blue { background: #3b82f6; }
+    .swatch.red  { background: #ef4444; }
+    .swatch.neutral { background: var(--neutral); }
+
+    #wrap { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
+    @media (max-width: 960px) { #wrap { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--panel); border: 1px solid #212536; border-radius: 12px; padding: 12px; height: fit-content;
+    }
+    .panel h3 { margin: 6px 0 10px; font-size: 16px; color: var(--text); }
+    .panel p, .panel li { color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .panel ul { margin: 8px 0 0 18px; }
+
+    /* SVG map */
+    #map {
+      background: #0d111a; border: 1px solid #212536; border-radius: 12px; padding: 12px;
+      display: grid; place-items: center;
+    }
+    svg { width: 100%; height: auto; max-width: 1200px; aspect-ratio: 16/10; display: block; }
+    .state { fill: var(--neutral); stroke: #1f2434; stroke-width: .6; cursor: pointer; }
+    .state:hover { filter: brightness(0.95); stroke-width: 1; }
+    .state.blue { fill: #3b82f6; }
+    .state.red  { fill: #ef4444; }
+
+    .label { font: 10px/1.1 ui-sans-serif, system-ui; fill: #f7fafc; paint-order: stroke; stroke: #0b0c0f; stroke-width: 2; pointer-events: none; text-anchor: middle; }
+
+    .tooltip {
+      position: fixed; pointer-events: none; padding: 6px 8px; border-radius: 8px; font-size: 12px;
+      background: #0b1220; color: #e5e7eb; border: 1px solid #24324a; box-shadow: 0 8px 24px #0006;
+      transform: translate(-50%, calc(-100% - 10px)); display: none; z-index: 5;
+    }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .stat { background: #0d1322; border: 1px solid #212536; border-radius: 10px; padding: 8px; text-align: center; }
+    .stat .n { font-size: 18px; font-weight: 700; display: block; margin-top: 2px; }
+
+    .kbd { font: 11px mono, ui-monospace, SFMono-Regular; padding: 3px 6px; border-radius: 6px; border: 1px solid #2a3042; background: #0d1322; color: #cbd5e1; }
+    .link { color: #93c5fd; text-decoration: none; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <div class="max-w-5xl mx-auto p-4 sm:p-6">
-    <!-- Header -->
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-4">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">比較政府與政治｜助教課：美國政治發展</h1>
-        <p class="text-sm text-gray-600">30 分鐘互動式教材（單一 HTML 檔，離線可用）</p>
-      </div>
-      <div class="flex items-center gap-3 no-print">
-        <label class="flex items-center gap-2 text-sm"><input id="projectorToggle" type="checkbox" class="h-4 w-4">投影模式</label>
-        <label class="flex items-center gap-2 text-sm"><input id="instructorToggle" type="checkbox" class="h-4 w-4">講師模式</label>
-        <button id="helpBtn" class="px-3 py-1.5 rounded-xl bg-gray-900 text-white text-sm">操作說明</button>
-      </div>
-    </header>
+<body>
+  <header>
+    <div class="toolbar" role="group" aria-label="工具列">
+      <button id="modeCycle" class="btn primary" title="點擊切換：中立→藍→紅">模式：點擊循環</button>
+      <button id="modeBrush" class="btn" title="選取顏色後點州填色">模式：刷色</button>
+      <span class="sep"></span>
+      <button id="pickBlue" class="btn blue" title="刷色：藍">刷藍</button>
+      <button id="pickRed"  class="btn red" title="刷色：紅">刷紅</button>
+      <button id="pickNeutral" class="btn neutral" title="刷色：清除">清除</button>
+      <span class="sep"></span>
+      <button id="resetBtn" class="btn" title="清空所有上色">全部清空</button>
+      <button id="labelsBtn" class="btn" title="顯示或隱藏縮寫">顯示縮寫</button>
+      <button id="exportBtn" class="btn" title="匯出 PNG">匯出PNG</button>
+      <span class="legend" aria-hidden="true">
+        <span class="swatch neutral"></span> 空白
+        <span class="swatch blue"></span> 藍
+        <span class="swatch red"></span> 紅
+      </span>
+    </div>
+  </header>
 
-    <!-- Timer & Segments -->
-    <section class="mb-6">
-      <div class="flex flex-wrap items-center gap-3 no-print">
-        <div class="text-3xl font-mono tabular-nums" id="clock">30:00</div>
-        <div class="flex gap-2">
-          <button id="startBtn" class="px-3 py-1.5 rounded-xl bg-green-600 text-white">開始</button>
-          <button id="pauseBtn" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white">暫停</button>
-          <button id="resetBtn" class="px-3 py-1.5 rounded-xl bg-gray-200">重設</button>
-        </div>
-        <div class="text-xs text-gray-600">自動高亮目前環節</div>
-      </div>
-      <div class="mt-3 w-full h-3 bg-gray-200 rounded-xl overflow-hidden">
-        <div id="progressBar" class="h-full w-0 bg-blue-600"></div>
-      </div>
-      <ul id="segments" class="mt-3 grid sm:grid-cols-5 gap-2 text-sm">
-        <!-- Filled by JS -->
+  <div id="wrap">
+    <aside class="panel" aria-label="說明">
+      <h3>使用說明</h3>
+      <ul>
+        <li>點擊州域切換顏色：中立→藍→紅（或改為「刷色」模式）。</li>
+        <li>右鍵點州可清除該州顏色。</li>
+        <li>按「顯示縮寫」標註州縮寫，便於點選。</li>
+        <li>進度自動暫存於瀏覽器，重新整理仍保留。</li>
       </ul>
-    </section>
-
-    <!-- Memo intake -->
-    <section class="mb-8">
-      <h2 class="text-xl font-semibold mb-2">貼上 memo 重點 → 自動生成講義</h2>
-      <p class="text-sm text-gray-600 mb-2">將「美國政治發展」的重點逐行貼上，系統會依序填入 5 個重點卡。可隨後手動微調。</p>
-      <div class="grid sm:grid-cols-[1fr_auto] gap-2 no-print">
-        <textarea id="memoInput" rows="4" placeholder="逐行貼上重點…" class="w-full p-3 rounded-xl border border-gray-300"></textarea>
-        <div class="flex sm:flex-col gap-2">
-          <button id="applyMemo" class="px-3 py-2 rounded-xl bg-blue-600 text-white">匯入重點</button>
-          <button id="clearMemo" class="px-3 py-2 rounded-xl bg-gray-200">清空</button>
+      <div class="stats" aria-label="統計">
+        <div class="stat">
+          <div>已上色</div>
+          <span id="filledN" class="n">0</span>
+        </div>
+        <div class="stat">
+          <div>藍</div>
+          <span id="blueN" class="n">0</span>
+        </div>
+        <div class="stat">
+          <div>紅</div>
+          <span id="redN" class="n">0</span>
         </div>
       </div>
-    </section>
+      <p style="margin-top:10px">鍵盤捷徑：<span class="kbd">B</span> 藍，<span class="kbd">R</span> 紅，<span class="kbd">N</span> 清除，<span class="kbd">L</span> 標註縮寫。</p>
+      <p>資料來源：<a class="link" href="https://github.com/topojson/us-atlas" target="_blank" rel="noopener">us-atlas TopoJSON</a></p>
+    </aside>
 
-    <!-- Warm-up Poll -->
-    <section class="mb-10">
-      <h2 class="text-xl font-semibold">暖身投票（3 分鐘）</h2>
-      <p class="text-sm text-gray-600 mb-3">問題：影響「美國政治發展」最具結構性力量的是哪一項？</p>
-      <form id="pollForm" class="space-y-2 no-print">
-        <label class="flex items-center gap-2"><input type="radio" name="poll" value="制度設計（憲政與聯邦）" class="h-4 w-4">制度設計（憲政與聯邦）</label>
-        <label class="flex items-center gap-2"><input type="radio" name="poll" value="經濟社會變遷（工業化、移民）" class="h-4 w-4">經濟社會變遷（工業化、移民）</label>
-        <label class="flex items-center gap-2"><input type="radio" name="poll" value="政黨體系與選舉規則" class="h-4 w-4">政黨體系與選舉規則</label>
-        <label class="flex items-center gap-2"><input type="radio" name="poll" value="理念與政治文化（共和主義、自由主義）" class="h-4 w-4">理念與政治文化（共和主義、自由主義）</label>
-        <div class="flex gap-2 pt-2">
-          <button class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white" type="submit">投票</button>
-          <button id="resetPoll" type="button" class="px-3 py-1.5 rounded-xl bg-gray-200">重置統計</button>
-        </div>
-      </form>
-      <div id="pollResult" class="mt-4 grid sm:grid-cols-2 gap-2"></div>
-      <p class="text-xs text-gray-500 mt-2">說明：僅在此裝置聚合。可用於課堂即時討論。</p>
-    </section>
-
-    <!-- Mini Lecture Cards -->
-    <section class="mb-10">
-      <h2 class="text-xl font-semibold">重點講解（7 分鐘）</h2>
-      <p class="text-sm text-gray-600 mb-3">依 memo 重點快速帶過。講師模式可顯示「備忘提示」。</p>
-      <div id="cards" class="grid sm:grid-cols-2 gap-3"></div>
-    </section>
-
-    <!-- Think-Pair-Share -->
-    <section class="mb-10">
-      <h2 class="text-xl font-semibold">Think–Pair–Share（8 分鐘）</h2>
-      <ol class="list-decimal list-inside space-y-2 text-sm">
-        <li><strong>Think 2’：</strong>就「美國聯邦主義」找出一例中央與州的權限拉扯，簡述其政治後果。</li>
-        <li><strong>Pair 4’：</strong>兩人互評：該案例反映何種制度誘因？若在議會內閣制會否不同？</li>
-        <li><strong>Share 2’：</strong>自選 1 組分享。助教總結跨制度比較重點。</li>
-      </ol>
-      <div class="no-print mt-3 flex flex-wrap gap-2 text-sm">
-        <button class="px-3 py-1.5 rounded-xl bg-gray-900 text-white" onclick="miniTimer(120)">Think 計時 2’</button>
-        <button class="px-3 py-1.5 rounded-xl bg-gray-900 text-white" onclick="miniTimer(240)">Pair 計時 4’</button>
-        <button class="px-3 py-1.5 rounded-xl bg-gray-900 text-white" onclick="miniTimer(120)">Share 計時 2’</button>
-        <span id="miniTimer" class="ml-2 font-mono tabular-nums"></span>
-      </div>
-    </section>
-
-    <!-- Quiz -->
-    <section class="mb-10">
-      <h2 class="text-xl font-semibold">小測驗（8 分鐘）</h2>
-      <form id="quizForm" class="space-y-5">
-        <!-- Qs injected by JS -->
-      </form>
-      <div id="quizOutcome" class="mt-3 text-sm"></div>
-      <div class="no-print mt-3 flex gap-2">
-        <button id="submitQuiz" class="px-3 py-1.5 rounded-xl bg-blue-600 text-white">送出答案</button>
-        <button id="resetQuiz" class="px-3 py-1.5 rounded-xl bg-gray-200">重作</button>
-      </div>
-    </section>
-
-    <!-- Exit Ticket -->
-    <section class="mb-10">
-      <h2 class="text-xl font-semibold">Wrap‑up（4 分鐘）</h2>
-      <div class="grid sm:grid-cols-2 gap-3 no-print">
-        <textarea id="exitQ1" rows="3" class="w-full p-3 rounded-xl border border-gray-300" placeholder="1）今天最有幫助的一點是什麼？為何？"></textarea>
-        <textarea id="exitQ2" rows="3" class="w-full p-3 rounded-xl border border-gray-300" placeholder="2）仍不清楚的一點是什麼？下次希望多講哪一塊？"></textarea>
-      </div>
-      <div class="no-print mt-3 flex gap-2 text-sm">
-        <button id="exportBtn" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white">匯出學習回饋 JSON</button>
-        <a id="downloadLink" class="hidden"></a>
-      </div>
-    </section>
-
-    <footer class="text-xs text-gray-500 pt-6 border-t">
-      <p>課程：比較政府與政治｜主題：美國政治發展｜版本：2025‑10｜快捷鍵：<kbd>I</kbd> 講師模式、<kbd>Space</kbd> 開始/暫停、<kbd>R</kbd> 重設、<kbd>P</kbd> 投影模式。</p>
-    </footer>
+    <main id="map" aria-label="美國五十州地圖">
+      <svg id="svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+        <title id="title">美國五十州填色空白地圖</title>
+        <desc id="desc">點擊各州以標示為藍色或紅色</desc>
+        <defs>
+          <filter id="drop">
+            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <g id="states" filter="url(#drop)"></g>
+        <g id="labels" style="display:none"></g>
+      </svg>
+      <div id="tooltip" class="tooltip" role="status" aria-live="polite"></div>
+    </main>
   </div>
 
-  <dialog id="helpDialog" class="p-0 rounded-2xl shadow-2xl max-w-xl w-[92vw]">
-    <div class="p-5">
-      <h3 class="text-lg font-semibold mb-2">操作說明</h3>
-      <ul class="list-disc list-inside text-sm space-y-1">
-        <li>按「開始」啟動 30:00 倒數。自動高亮目前環節。</li>
-        <li>貼上 memo 重點並「匯入」，5 張卡會即時更新。</li>
-        <li>投票與小測結果僅存於本機，可按「重置」清空。</li>
-        <li>講師模式會顯示正解與備忘提示。可於投影時關閉。</li>
-      </ul>
-      <div class="mt-3 text-right">
-        <button id="closeHelp" class="px-3 py-1.5 rounded-xl bg-gray-900 text-white">關閉</button>
-      </div>
-    </div>
-  </dialog>
+  <footer>
+    <small style="color:var(--muted)">互動地圖僅供教學與測驗使用。未含任何選舉結果資料。</small>
+  </footer>
 
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
   <script>
-    // ====== State ======
-    const total = 30 * 60; // seconds
-    let remaining = total;
-    let timer = null;
+  (function() {
+    const svg = d3.select('#svg');
+    const gStates = d3.select('#states');
+    const gLabels = d3.select('#labels');
+    const tooltip = d3.select('#tooltip');
 
-    const SEGMENTS = [
-      { label: '暖身投票', start: 0, duration: 180 },
-      { label: '重點講解', start: 180, duration: 420 },
-      { label: 'Think–Pair–Share', start: 600, duration: 480 },
-      { label: '小測驗', start: 1080, duration: 480 },
-      { label: 'Wrap‑up', start: 1560, duration: 240 }
-    ];
+    const stateMeta = new Map(Object.entries({
+      "01": {abbr:"AL", name:"Alabama"},
+      "02": {abbr:"AK", name:"Alaska"},
+      "04": {abbr:"AZ", name:"Arizona"},
+      "05": {abbr:"AR", name:"Arkansas"},
+      "06": {abbr:"CA", name:"California"},
+      "08": {abbr:"CO", name:"Colorado"},
+      "09": {abbr:"CT", name:"Connecticut"},
+      "10": {abbr:"DE", name:"Delaware"},
+      "12": {abbr:"FL", name:"Florida"},
+      "13": {abbr:"GA", name:"Georgia"},
+      "15": {abbr:"HI", name:"Hawaii"},
+      "16": {abbr:"ID", name:"Idaho"},
+      "17": {abbr:"IL", name:"Illinois"},
+      "18": {abbr:"IN", name:"Indiana"},
+      "19": {abbr:"IA", name:"Iowa"},
+      "20": {abbr:"KS", name:"Kansas"},
+      "21": {abbr:"KY", name:"Kentucky"},
+      "22": {abbr:"LA", name:"Louisiana"},
+      "23": {abbr:"ME", name:"Maine"},
+      "24": {abbr:"MD", name:"Maryland"},
+      "25": {abbr:"MA", name:"Massachusetts"},
+      "26": {abbr:"MI", name:"Michigan"},
+      "27": {abbr:"MN", name:"Minnesota"},
+      "28": {abbr:"MS", name:"Mississippi"},
+      "29": {abbr:"MO", name:"Missouri"},
+      "30": {abbr:"MT", name:"Montana"},
+      "31": {abbr:"NE", name:"Nebraska"},
+      "32": {abbr:"NV", name:"Nevada"},
+      "33": {abbr:"NH", name:"New Hampshire"},
+      "34": {abbr:"NJ", name:"New Jersey"},
+      "35": {abbr:"NM", name:"New Mexico"},
+      "36": {abbr:"NY", name:"New York"},
+      "37": {abbr:"NC", name:"North Carolina"},
+      "38": {abbr:"ND", name:"North Dakota"},
+      "39": {abbr:"OH", name:"Ohio"},
+      "40": {abbr:"OK", name:"Oklahoma"},
+      "41": {abbr:"OR", name:"Oregon"},
+      "42": {abbr:"PA", name:"Pennsylvania"},
+      "44": {abbr:"RI", name:"Rhode Island"},
+      "45": {abbr:"SC", name:"South Carolina"},
+      "46": {abbr:"SD", name:"South Dakota"},
+      "47": {abbr:"TN", name:"Tennessee"},
+      "48": {abbr:"TX", name:"Texas"},
+      "49": {abbr:"UT", name:"Utah"},
+      "50": {abbr:"VT", name:"Vermont"},
+      "51": {abbr:"VA", name:"Virginia"},
+      "53": {abbr:"WA", name:"Washington"},
+      "54": {abbr:"WV", name:"West Virginia"},
+      "55": {abbr:"WI", name:"Wisconsin"},
+      "56": {abbr:"WY", name:"Wyoming"}
+      // 11=DC, 72=PR 不計入
+    }));
 
-    const DEFAULT_CARDS = [
-      { title: '制度設計與憲政基礎', note: '開國設計、制衡、聯邦主義的邏輯。' },
-      { title: '政黨體系與選舉規則', note: '兩黨化誘因、初選、重整（realignment）。' },
-      { title: '社會經濟變遷', note: '工業化、移民浪潮、都市化與政策回應。' },
-      { title: '國家能力與政策擴張', note: '進步時期、New Deal、民權運動後的治理能力。' },
-      { title: '政治文化與理念脈絡', note: '自由主義、共和主義、例外論的政治語彙。' }
-    ];
+    const stateOrder = Array.from(stateMeta.keys());
 
-    const QUIZ = [
-      { q: '聯邦主義下中央與州權限的調整，歷史上最具轉折影響的時期通常被認為是：',
-        options: ['制憲與《聯邦黨人文集》時期', '南北戰爭與重建修正案後', '二戰前的孤立主義時期', '里根時期的新聯邦主義'],
-        a: 1,
-        exp: '重建後第13–15修正案與隨後的判例擴張了聯邦在公民權等領域的權限，為後續聯邦治理能力奠基。' },
-      { q: '兩黨制在美國長期穩定的主要結構性原因，最常被提出的是：',
-        options: ['總統制的分權', '多數決單一選區相對多數制', '選舉人團制度', '政黨財務規範'],
-        a: 1,
-        exp: '杜維傑法則預測單一選區相對多數制傾向導致兩黨競爭。' },
-      { q: '進步時期（Progressive Era）的典型制度創新不包括：',
-        options: ['公務員考試與文官改革', '直接初選與公民投票', '參議員直接民選', '行政命令的違憲化'],
-        a: 3,
-        exp: '行政命令未被「違憲化」。其他皆屬進步時期改革方向。' },
-      { q: '政黨重整（party realignment）常見的識別徵象是：',
-        options: ['政黨色彩更換', '投票聯盟結構的持久改變', '選區重新劃分', '媒體所有權變更'],
-        a: 1,
-        exp: '重整關鍵在於社會聯盟與議題分歧的持久改變。' },
-      { q: 'New Deal 時期對聯邦能力的影響，較合理的歸納是：',
-        options: ['縮減聯邦支出並下放權力', '建立福利國家雛形並擴張監管', '取消最高法院覆核', '改為議會內閣制'],
-        a: 1,
-        exp: 'New Deal 擴張聯邦在經濟與社會政策的角色。' },
-      { q: '民權運動後，聯邦政府在保障基本權利的角色傾向：',
-        options: ['更依賴州自行裁量', '以憲法與聯邦法擴張平等保障', '完全交由最高法院不涉立法', '交由地方公投決定'],
-        a: 1,
-        exp: '聯邦透過立法與判例強化反歧視與平等保障。' }
-    ];
+    const projection = d3.geoAlbersUsa();
+    const path = d3.geoPath(projection);
 
-    // ====== Elements ======
-    const clockEl = document.getElementById('clock');
-    const progressEl = document.getElementById('progressBar');
-    const segmentsEl = document.getElementById('segments');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const instructorToggle = document.getElementById('instructorToggle');
-    const projectorToggle = document.getElementById('projectorToggle');
+    const storeKey = 'us-fill-map-v1';
+    let paintMode = 'cycle'; // 'cycle' | 'brush'
+    let brushColor = 'blue'; // 'blue' | 'red' | 'neutral'
 
-    const memoInput = document.getElementById('memoInput');
-    const applyMemo = document.getElementById('applyMemo');
-    const clearMemo = document.getElementById('clearMemo');
-
-    const pollForm = document.getElementById('pollForm');
-    const pollResult = document.getElementById('pollResult');
-
-    const cardsEl = document.getElementById('cards');
-
-    const quizForm = document.getElementById('quizForm');
-    const quizOutcome = document.getElementById('quizOutcome');
-    const submitQuiz = document.getElementById('submitQuiz');
-    const resetQuiz = document.getElementById('resetQuiz');
-
-    const exportBtn = document.getElementById('exportBtn');
-    const dlLink = document.getElementById('downloadLink');
-
-    const helpBtn = document.getElementById('helpBtn');
-    const helpDialog = document.getElementById('helpDialog');
-    const closeHelp = document.getElementById('closeHelp');
-
-    const miniTimerEl = document.getElementById('miniTimer');
-
-    // ====== Utility ======
-    const fmt = s => {
-      const m = Math.floor(s/60).toString().padStart(2,'0');
-      const ss = Math.floor(s%60).toString().padStart(2,'0');
-      return `${m}:${ss}`;
+    function setMode(mode) {
+      paintMode = mode;
+      d3.select('#modeCycle').classed('primary', mode==='cycle');
+      d3.select('#modeBrush').classed('primary', mode==='brush');
     }
 
-    function renderSegments() {
-      segmentsEl.innerHTML = '';
-      SEGMENTS.forEach((seg, i) => {
-        const li = document.createElement('li');
-        li.className = 'rounded-xl border bg-white p-2';
-        li.innerHTML = `<div class="text-xs text-gray-500">${fmt(seg.start)}–${fmt(seg.start + seg.duration)}</div>
-                        <div class="font-medium">${i+1}. ${seg.label}</div>`;
-        segmentsEl.appendChild(li);
+    function setBrush(color) {
+      brushColor = color;
+      ['pickBlue','pickRed','pickNeutral'].forEach(id => d3.select('#'+id).classed('primary', false));
+      if (color==='blue') d3.select('#pickBlue').classed('primary', true);
+      if (color==='red') d3.select('#pickRed').classed('primary', true);
+      if (color==='neutral') d3.select('#pickNeutral').classed('primary', true);
+    }
+
+    function updateStats() {
+      const states = gStates.selectAll('path.state');
+      const blue = states.filter('.blue').size();
+      const red = states.filter('.red').size();
+      const filled = blue + red;
+      d3.select('#blueN').text(blue);
+      d3.select('#redN').text(red);
+      d3.select('#filledN').text(filled);
+    }
+
+    function saveState() {
+      const obj = {};
+      gStates.selectAll('path.state').each(function(d){
+        const el = this;
+        const id = d.idStr; // FIPS string like "06"
+        if (el.classList.contains('blue')) obj[id] = 'b';
+        else if (el.classList.contains('red')) obj[id] = 'r';
       });
+      try { localStorage.setItem(storeKey, JSON.stringify(obj)); } catch {}
     }
 
-    function tick() {
-      remaining = Math.max(0, remaining - 1);
-      clockEl.textContent = fmt(remaining);
-      const done = total - remaining;
-      progressEl.style.width = `${(done/total)*100}%`;
-      // highlight
-      const t = done;
-      [...segmentsEl.children].forEach((li, i) => {
-        const seg = SEGMENTS[i];
-        const on = t >= seg.start && t < seg.start + seg.duration;
-        li.className = `rounded-xl border p-2 ${on ? 'bg-blue-50 border-blue-300' : 'bg-white'}`;
+    function loadState() {
+      let obj = {};
+      try { obj = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch {}
+      gStates.selectAll('path.state').each(function(d){
+        const el = this;
+        el.classList.remove('blue','red');
+        const s = obj[d.idStr];
+        if (s==='b') el.classList.add('blue');
+        if (s==='r') el.classList.add('red');
       });
-      if (remaining === 0) stop();
+      updateStats();
     }
 
-    function start() { if (!timer) timer = setInterval(tick, 1000); }
-    function stop() { clearInterval(timer); timer = null; }
-    function reset() { stop(); remaining = total; clockEl.textContent = fmt(remaining); progressEl.style.width = '0%'; renderSegments(); }
-
-    // ====== Memo → Cards ======
-    function renderCards(data = DEFAULT_CARDS) {
-      cardsEl.innerHTML = '';
-      data.forEach((c, idx) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'rounded-2xl border bg-white p-4';
-        wrap.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <h3 class="font-semibold">${idx+1}. <span class="card-title">${c.title}</span></h3>
-            <button class="no-print text-xs px-2 py-1 rounded-lg bg-gray-100" onclick="this.closest('.rounded-2xl').querySelector('.card-body').classList.toggle('hidden')">折疊</button>
-          </div>
-          <div class="card-body mt-2 text-sm leading-6">
-            <p contenteditable class="outline-none">${c.body || '（在此補充 2–4 句說明與例證）'}</p>
-            <p class="mt-2 text-xs text-gray-500 ${instructorToggle.checked ? '' : 'hidden'}">備忘提示：${c.note || '可連結到比較政治理論或臺灣對照案例。'}</p>
-          </div>`;
-        cardsEl.appendChild(wrap);
-      });
+    function clearAll() {
+      gStates.selectAll('path.state').classed('blue', false).classed('red', false);
+      saveState();
+      updateStats();
     }
 
-    function applyMemoToCards(txt) {
-      const lines = txt.split(/\n/).map(s => s.trim()).filter(Boolean);
-      const arr = DEFAULT_CARDS.map((c,i) => ({
-        title: lines[i] || c.title,
-        body: lines[i+5] || '',
-        note: c.note
-      }));
-      renderCards(arr);
+    function showTooltip(html, [x,y]) {
+      tooltip.style('display','block').html(html).style('left', x+"px").style('top', y+"px");
+    }
+    function hideTooltip() { tooltip.style('display','none'); }
+
+    function toggleLabels() {
+      const cur = gLabels.style('display') !== 'none';
+      gLabels.style('display', cur ? 'none' : null);
+      d3.select('#labelsBtn').classed('primary', !cur);
     }
 
-    // ====== Poll ======
-    function loadPoll() {
-      const raw = JSON.parse(localStorage.getItem('cg_us_poll')||'{}');
-      return raw;
-    }
-    function savePoll(obj) { localStorage.setItem('cg_us_poll', JSON.stringify(obj)); }
-    function renderPoll() {
-      const data = loadPoll();
-      const total = Object.values(data).reduce((a,b)=>a+b,0) || 0;
-      pollResult.innerHTML = '';
-      Object.entries(data).forEach(([k,v])=>{
-        const pct = total ? Math.round(v*100/total) : 0;
-        const row = document.createElement('div');
-        row.className = 'flex items-center gap-2';
-        row.innerHTML = `<div class="w-40 text-sm">${k}</div>
-          <div class="flex-1 h-2 bg-gray-200 rounded"><div class="h-full rounded bg-indigo-600" style="width:${pct}%"></div></div>
-          <div class="w-10 text-right text-xs tabular-nums">${pct}%</div>`;
-        pollResult.appendChild(row);
-      });
+    function labelFor(feature) {
+      const meta = stateMeta.get(feature.idStr);
+      return meta ? meta.abbr : '';
     }
 
-    // ====== Quiz ======
-    function renderQuiz() {
-      quizForm.innerHTML = '';
-      QUIZ.forEach((item, idx) => {
-        const qid = 'q'+idx;
-        const block = document.createElement('div');
-        block.className = 'rounded-2xl border bg-white p-4';
-        const opts = item.options.map((opt, i) => `
-          <label class="flex items-center gap-2"><input class="h-4 w-4" type="radio" name="${qid}" value="${i}"> ${opt}</label>`).join('');
-        block.innerHTML = `
-          <div class="font-medium">${idx+1}. ${item.q}</div>
-          <div class="mt-2 space-y-1">${opts}</div>
-          <div class="mt-2 text-xs text-emerald-700 ${instructorToggle.checked ? '' : 'hidden'}">參考解：${'ABCD'[item.a]}｜${item.exp}</div>`;
-        quizForm.appendChild(block);
-      });
+    function colorState(el, how) {
+      el.classList.remove('blue','red');
+      if (how==='blue') el.classList.add('blue');
+      if (how==='red') el.classList.add('red');
     }
 
-    function gradeQuiz() {
-      let correct = 0; let answered = 0;
-      QUIZ.forEach((item, idx) => {
-        const sel = quizForm.querySelector(`input[name=q${idx}]:checked`);
-        if (sel) { answered++; if (+sel.value === item.a) correct++; }
-      });
-      const score = answered ? Math.round(correct*100/QUIZ.length) : 0;
-      quizOutcome.textContent = `作答 ${answered}/${QUIZ.length} 題，得分 ${score} 分。`;
+    function cycleState(el) {
+      if (el.classList.contains('blue')) { colorState(el,'red'); }
+      else if (el.classList.contains('red')) { colorState(el,'neutral'); }
+      else { colorState(el,'blue'); }
     }
 
-    // ====== Mini timer ======
-    let mini = null, miniRemain = 0;
-    function miniTimer(sec) {
-      clearInterval(mini); miniRemain = sec; miniTick();
-      mini = setInterval(()=>{ miniRemain--; miniTick(); if (miniRemain<=0) clearInterval(mini); },1000);
-    }
-    function miniTick(){ miniTimerEl.textContent = miniRemain? `倒數 ${fmt(miniRemain)}` : ''; }
+    function exportPNG() {
+      const svgNode = document.getElementById('svg');
+      const serializer = new XMLSerializer();
+      const src = serializer.serializeToString(svgNode);
+      const svgBlob = new Blob([src], {type:'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
 
-    // ====== Export ======
-    function exportJSON() {
-      const payload = {
-        ts: new Date().toISOString(),
-        poll: loadPoll(),
-        exit: { q1: document.getElementById('exitQ1').value, q2: document.getElementById('exitQ2').value }
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ratio = 960/600; // viewBox size
+        const W = Math.min(window.innerWidth*2, 1920);
+        const H = Math.round(W/ratio);
+        canvas.width = W; canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#0d111a';
+        ctx.fillRect(0,0,W,H);
+        ctx.drawImage(img, 0, 0, W, H);
+        canvas.toBlob((blob)=>{
+          const a = document.createElement('a');
+          a.download = 'us-map-fill.png';
+          a.href = URL.createObjectURL(blob);
+          a.click();
+          URL.revokeObjectURL(url);
+        });
       };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      dlLink.href = url;
-      dlLink.download = 'cg_us_session_feedback.json';
-      dlLink.click();
-      setTimeout(()=>URL.revokeObjectURL(url), 1500);
+      img.src = url;
     }
 
-    // ====== Events ======
-    startBtn.onclick = start; pauseBtn.onclick = stop; resetBtn.onclick = reset;
-    document.addEventListener('keydown', e => {
-      if (e.code === 'Space') { e.preventDefault(); timer ? stop(): start(); }
-      if (e.key.toLowerCase() === 'r') reset();
-      if (e.key.toLowerCase() === 'i') instructorToggle.click();
-      if (e.key.toLowerCase() === 'p') projectorToggle.click();
+    // Load map
+    fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+      .then(r => r.json())
+      .then(us => {
+        const states = topojson.feature(us, us.objects.states).features
+          .filter(f => stateMeta.has(String(f.id).padStart(2,'0'))); // 保留 50 州，排除 DC 與屬地
+
+        // Fit projection
+        projection.fitSize([920, 560], {type:'FeatureCollection', features: states});
+
+        // Draw states
+        const paths = gStates.selectAll('path').data(states, d=>d.id);
+        paths.enter().append('path')
+          .attr('class','state')
+          .attr('d', d => path(d))
+          .each(function(d){ d.idStr = String(d.id).padStart(2,'0'); this.dataset.fips = d.idStr; })
+          .on('pointerenter', function(event, d){
+            const meta = stateMeta.get(d.idStr) || {}; const ab = meta.abbr || '';
+            showTooltip(`${meta.name || '未知'} (${ab})`, [event.clientX, event.clientY]);
+          })
+          .on('pointermove', function(event){
+            showTooltip(tooltip.html(), [event.clientX, event.clientY]);
+          })
+          .on('pointerleave', function(){ hideTooltip(); })
+          .on('contextmenu', function(event){ event.preventDefault(); colorState(this,'neutral'); saveState(); updateStats(); })
+          .on('click', function(){
+            if (paintMode==='cycle') cycleState(this); else colorState(this, brushColor);
+            saveState(); updateStats();
+          });
+
+        // Labels
+        const labels = gLabels.selectAll('text').data(states, d=>d.id);
+        labels.enter().append('text')
+          .attr('class','label')
+          .text(d => labelFor(d))
+          .attr('transform', d => `translate(${path.centroid(d)})`)
+          .attr('dy', '0.35em');
+
+        loadState();
+      });
+
+    // Controls
+    document.getElementById('modeCycle').addEventListener('click', ()=> setMode('cycle'));
+    document.getElementById('modeBrush').addEventListener('click', ()=> setMode('brush'));
+    document.getElementById('pickBlue').addEventListener('click', ()=> setBrush('blue'));
+    document.getElementById('pickRed').addEventListener('click',  ()=> setBrush('red'));
+    document.getElementById('pickNeutral').addEventListener('click', ()=> setBrush('neutral'));
+    document.getElementById('resetBtn').addEventListener('click', clearAll);
+    document.getElementById('labelsBtn').addEventListener('click', toggleLabels);
+    document.getElementById('exportBtn').addEventListener('click', exportPNG);
+
+    // Shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if (e.key==='l' || e.key==='L') toggleLabels();
+      if (e.key==='b' || e.key==='B') { setMode('brush'); setBrush('blue'); }
+      if (e.key==='r' || e.key==='R') { setMode('brush'); setBrush('red'); }
+      if (e.key==='n' || e.key==='N') { setMode('brush'); setBrush('neutral'); }
     });
 
-    instructorToggle.onchange = () => { renderCards(); renderQuiz(); };
-    projectorToggle.onchange = () => {
-      document.documentElement.classList.toggle('text-[18px]', projectorToggle.checked);
-      document.documentElement.classList.toggle('sm:text-[18px]', projectorToggle.checked);
-    };
-
-    applyMemo.onclick = () => applyMemoToCards(memoInput.value);
-    clearMemo.onclick = () => { memoInput.value=''; renderCards(); };
-
-    pollForm.onsubmit = (e) => {
-      e.preventDefault();
-      const sel = new FormData(pollForm).get('poll');
-      if (!sel) return;
-      const data = loadPoll();
-      data[sel] = (data[sel]||0) + 1;
-      savePoll(data); renderPoll();
-      pollForm.reset();
-    };
-    document.getElementById('resetPoll').onclick = ()=>{ localStorage.removeItem('cg_us_poll'); renderPoll(); };
-
-    submitQuiz.onclick = (e)=>{ e.preventDefault(); gradeQuiz(); };
-    resetQuiz.onclick = (e)=>{ e.preventDefault(); quizForm.reset(); quizOutcome.textContent=''; };
-
-    exportBtn.onclick = exportJSON;
-
-    helpBtn.onclick = ()=>helpDialog.showModal();
-    document.getElementById('closeHelp').onclick = ()=>helpDialog.close();
-
-    // ====== Init ======
-    renderSegments();
-    renderCards();
-    renderQuiz();
-    renderPoll();
-    reset();
+    // Init UI
+    setMode('cycle');
+    setBrush('blue');
+  })();
   </script>
 </body>
 </html>
