@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>美國五十州填色空白地圖</title>
+  <title>美國五十州填色空白地圖（藍/紅猜測）</title>
   <style>
     :root {
       --bg: #0b0c0f;
@@ -71,13 +71,15 @@
 
     .label { font: 10px/1.1 ui-sans-serif, system-ui; fill: #f7fafc; paint-order: stroke; stroke: #0b0c0f; stroke-width: 2; pointer-events: none; text-anchor: middle; }
 
+    .label.ev { font-size: 11px; }
+
     .tooltip {
       position: fixed; pointer-events: none; padding: 6px 8px; border-radius: 8px; font-size: 12px;
       background: #0b1220; color: #e5e7eb; border: 1px solid #24324a; box-shadow: 0 8px 24px #0006;
       transform: translate(-50%, calc(-100% - 10px)); display: none; z-index: 5;
     }
 
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
     .stat { background: #0d1322; border: 1px solid #212536; border-radius: 10px; padding: 8px; text-align: center; }
     .stat .n { font-size: 18px; font-weight: 700; display: block; margin-top: 2px; }
 
@@ -97,6 +99,7 @@
       <span class="sep"></span>
       <button id="resetBtn" class="btn" title="清空所有上色">全部清空</button>
       <button id="labelsBtn" class="btn" title="顯示或隱藏縮寫">顯示縮寫</button>
+      <button id="evBtn" class="btn" title="顯示或隱藏選舉人票">顯示選舉人票</button>
       <button id="exportBtn" class="btn" title="匯出 PNG">匯出PNG</button>
       <span class="legend" aria-hidden="true">
         <span class="swatch neutral"></span> 空白
@@ -128,6 +131,14 @@
           <div>紅</div>
           <span id="redN" class="n">0</span>
         </div>
+        <div class="stat">
+          <div>藍選舉人票</div>
+          <span id="blueEV" class="n">0</span>
+        </div>
+        <div class="stat">
+          <div>紅選舉人票</div>
+          <span id="redEV" class="n">0</span>
+        </div>
       </div>
       <p style="margin-top:10px">鍵盤捷徑：<span class="kbd">B</span> 藍，<span class="kbd">R</span> 紅，<span class="kbd">N</span> 清除，<span class="kbd">L</span> 標註縮寫。</p>
       <p>資料來源：<a class="link" href="https://github.com/topojson/us-atlas" target="_blank" rel="noopener">us-atlas TopoJSON</a></p>
@@ -144,6 +155,7 @@
         </defs>
         <g id="states" filter="url(#drop)"></g>
         <g id="labels" style="display:none"></g>
+        <g id="evLabels" style="display:none"></g>
       </svg>
       <div id="tooltip" class="tooltip" role="status" aria-live="polite"></div>
     </main>
@@ -161,6 +173,7 @@
     const svg = d3.select('#svg');
     const gStates = d3.select('#states');
     const gLabels = d3.select('#labels');
+    const gEV = d3.select('#evLabels');
     const tooltip = d3.select('#tooltip');
 
     const stateMeta = new Map(Object.entries({
@@ -217,6 +230,10 @@
       // 11=DC, 72=PR 不計入
     }));
 
+    // 選舉人票（2024 配額），鍵為 FIPS
+    const evByFips = {"01":9,"02":3,"04":11,"05":6,"06":54,"08":10,"09":7,"10":3,"12":30,"13":16,"15":4,"16":4,"17":19,"18":11,"19":6,"20":6,"21":8,"22":8,"23":4,"24":10,"25":11,"26":15,"27":10,"28":6,"29":10,"30":4,"31":5,"32":6,"33":4,"34":14,"35":5,"36":28,"37":16,"38":3,"39":17,"40":7,"41":8,"42":19,"44":4,"45":9,"46":3,"47":11,"48":40,"49":6,"50":3,"51":13,"53":12,"54":4,"55":10,"56":3};
+    for (const [k,v] of Object.entries(evByFips)) { if (stateMeta.has(k)) stateMeta.get(k).ev = v; }
+
     const stateOrder = Array.from(stateMeta.keys());
 
     const projection = d3.geoAlbersUsa();
@@ -245,9 +262,18 @@
       const blue = states.filter('.blue').size();
       const red = states.filter('.red').size();
       const filled = blue + red;
+      let blueEV = 0, redEV = 0;
+      states.each(function(d){
+        const fips = d.idStr;
+        const ev = (stateMeta.get(fips)?.ev) || 0;
+        if (this.classList.contains('blue')) blueEV += ev;
+        if (this.classList.contains('red')) redEV += ev;
+      });
       d3.select('#blueN').text(blue);
       d3.select('#redN').text(red);
       d3.select('#filledN').text(filled);
+      d3.select('#blueEV').text(blueEV);
+      d3.select('#redEV').text(redEV);
     }
 
     function saveState() {
@@ -289,6 +315,12 @@
       const cur = gLabels.style('display') !== 'none';
       gLabels.style('display', cur ? 'none' : null);
       d3.select('#labelsBtn').classed('primary', !cur);
+    }
+
+    function toggleEV() {
+      const cur = gEV.style('display') !== 'none';
+      gEV.style('display', cur ? 'none' : null);
+      d3.select('#evBtn').classed('primary', !cur);
     }
 
     function labelFor(feature) {
@@ -375,6 +407,14 @@
           .attr('transform', d => `translate(${path.centroid(d)})`)
           .attr('dy', '0.35em');
 
+        // EV labels
+        const evLabels = gEV.selectAll('text').data(states, d=>d.id);
+        evLabels.enter().append('text')
+          .attr('class','label ev')
+          .text(d => (stateMeta.get(String(d.id).padStart(2,'0'))?.ev ?? ''))
+          .attr('transform', d => `translate(${path.centroid(d)})`)
+          .attr('dy','0.35em');
+
         loadState();
       });
 
@@ -386,11 +426,13 @@
     document.getElementById('pickNeutral').addEventListener('click', ()=> setBrush('neutral'));
     document.getElementById('resetBtn').addEventListener('click', clearAll);
     document.getElementById('labelsBtn').addEventListener('click', toggleLabels);
+    document.getElementById('evBtn').addEventListener('click', toggleEV);
     document.getElementById('exportBtn').addEventListener('click', exportPNG);
 
     // Shortcuts
     window.addEventListener('keydown', (e)=>{
       if (e.key==='l' || e.key==='L') toggleLabels();
+      if (e.key==='e' || e.key==='E') toggleEV();
       if (e.key==='b' || e.key==='B') { setMode('brush'); setBrush('blue'); }
       if (e.key==='r' || e.key==='R') { setMode('brush'); setBrush('red'); }
       if (e.key==='n' || e.key==='N') { setMode('brush'); setBrush('neutral'); }
